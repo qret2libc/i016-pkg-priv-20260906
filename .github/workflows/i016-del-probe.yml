@@ -1,0 +1,24 @@
+name: i016-del-probe
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  del:
+    runs-on: ubuntu-latest
+    steps:
+      - name: delete-probes
+        run: |
+          set +e
+          for ep in "versions/1215636828" ""; do
+            code=$(curl -sS -o /tmp/del.json -w '%{http_code}' -X DELETE -H "Authorization: Bearer ${{ github.token }}" -H "Accept: application/vnd.github+json" "https://api.github.com/user/packages/npm/i016-priv-probe/$ep")
+            echo "I016DEL $ep -> $code"
+            head -c 1200 /tmp/del.json
+            echo
+          done
+          code2=$(curl -sS -o /tmp/r.json -w '%{http_code}' -X POST -H "Authorization: Bearer ${{ github.token }}" -H "Accept: application/vnd.github+json" "https://api.github.com/user/packages/npm/i016-priv-probe/versions/1215636828/restore")
+          echo "I016RESTORE -> $code2"
+          head -c 1200 /tmp/r.json
